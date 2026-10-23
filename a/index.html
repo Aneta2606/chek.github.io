@@ -1,132 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Решение системы уравнений (Метод Крамера)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 500px;
-        }
-        h4 {
-            margin-top: 0;
-            color: #333;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        input[type="number"] {
-            width: 60px;
-            padding: 5px;
-            margin-right: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 8px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        .result input {
-            width: 80px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #e9ecef;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title></title>
 </head>
 <body>
-
-    <div class="container">
-        <!-- Заголовок с вашим логином. Замените "ivanov" на ваш логин в Moodle -->
-        <h4>1161595</h4>
-
-        <p>Введите коэффициенты системы:<br>
-           <i>a1*x + b1*y = c1</i><br>
-           <i>a2*x + b2*y = c2</i>
-        </p>
-
-        <!-- Поля для ввода коэффициентов -->
-        <div class="input-group">
-            <input type="number" id="n1" placeholder="a1">
-            <input type="number" id="n2" placeholder="b1">
-            <input type="number" id="n3" placeholder="c1">
-        </div>
-        <div class="input-group">
-            <input type="number" id="n4" placeholder="a2">
-            <input type="number" id="n5" placeholder="b2">
-            <input type="number" id="n6" placeholder="c2">
-        </div>
-
-        <!-- Кнопка запуска вычислений -->
-        <button id="bt">Вычислить!</button>
-
-        <!-- Поля для вывода результата -->
-        <div class="result">
-            <label>x = <input type="text" id="result1" readonly></label>
-            <label>y = <input type="text" id="result2" readonly></label>
-        </div>
-    </div>
-
-    <script>
-        // Ждем загрузки страницы и вешаем обработчик на кнопку
-        document.getElementById('bt').addEventListener('click', function() {
-            // Получаем значения из полей и преобразуем их в числа (Number)
-            const a1 = Number(document.getElementById('n1').value);
-            const b1 = Number(document.getElementById('n2').value);
-            const c1 = Number(document.getElementById('n3').value);
-            
-            const a2 = Number(document.getElementById('n4').value);
-            const b2 = Number(document.getElementById('n5').value);
-            const c2 = Number(document.getElementById('n6').value);
-
-            // Вычисляем главный определитель системы (Д)
-            const det = a1 * b2 - a2 * b1;
-
-            // Проверка: если определитель равен 0, система не имеет единственного решения
-            if (det === 0) {
-                document.getElementById('result1').value = "Ошибка";
-                document.getElementById('result2').value = "Ошибка";
-                return;
-            }
-
-            // Вычисляем определитель для x (Дx)
-            const detX = c1 * b2 - c2 * b1;
-
-            // Вычисляем определитель для y (Дy)
-            const detY = a1 * c2 - a2 * c1;
-
-            // Находим корни по формулам Крамера
-            const x = detX / det;
-            const y = detY / det;
-
-            // Выводим результат в поля
-            document.getElementById('result1').value = x;
-            document.getElementById('result2').value = y;
-        });
-    </script>
-
+  <h4>1161595</h4>
+  <script>
+    const raw = decodeURIComponent(location.search.slice(1));
+    const arr = JSON.parse(raw);
+    arr.sort((a, b) => a - b);
+    document.title = arr.toString();
+  </script>
 </body>
 </html>
