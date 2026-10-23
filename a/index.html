@@ -2,39 +2,25 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>Метод Крамера</title>
 </head>
 <body>
   <h4>1161595</h4>
-  
-  <input type="number" id="n1">
-  <input type="number" id="n2">
-  <input type="number" id="n3"><br>
-  <input type="number" id="n4">
-  <input type="number" id="n5">
-  <input type="number" id="n6"><br><br>
-  
-  <button id="bt">Вычислить</button><br><br>
-  
-  x = <input type="text" id="result1" readonly><br>
-  y = <input type="text" id="result2" readonly>
+
+  <input id="n1" value="2"> x + <input id="n2" value="3"> y = <input id="n3" value="18">
+
+  <input id="n4" value="4"> x + <input id="n5" value="-5"> y = <input id="n6" value="-8">
+
+  <button id="bt">Вычислить!</button>
+
+  <input id="result1"> <input id="result2">
 
   <script>
-    document.getElementById('bt').addEventListener('click', () => {
-      const n1 = +document.getElementById('n1').value;
-      const n2 = +document.getElementById('n2').value;
-      const n3 = +document.getElementById('n3').value;
-      const n4 = +document.getElementById('n4').value;
-      const n5 = +document.getElementById('n5').value;
-      const n6 = +document.getElementById('n6').value;
-
-      const det = n1 * n5 - n4 * n2;
-      
-      if (det !== 0) {
-        document.getElementById('result1').value = (n3 * n5 - n6 * n2) / det;
-        document.getElementById('result2').value = (n1 * n6 - n4 * n3) / det;
-      }
-    });
+    bt.onclick = () => {
+      const d = n1.value * n5.value - n2.value * n4.value;
+      result1.value = (n3.value * n5.value - n2.value * n6.value) / d;
+      result2.value = (n1.value * n6.value - n3.value * n4.value) / d;
+    };
   </script>
 </body>
 </html>
