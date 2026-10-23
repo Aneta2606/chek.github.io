@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сортировка массива</title>
+</head>
+<body>
+
+    <!-- Заголовок с вашим логином -->
+    <h4>1161595</h4>
+
+    <script>
+        // Получаем строку запроса из адресной строки (всё, что после ?)
+        const queryString = window.location.search;
+
+        // Если в адресе есть знак вопроса и данные
+        if (queryString && queryString.length > 1) {
+            try {
+                // Убираем знак '?' с начала строки
+                const arrayStr = queryString.slice(1); 
+                
+                // Преобразуем строку вида "[55,33,44]" в реальный массив
+                const arr = JSON.parse(arrayStr);
+                
+                // Сортируем массив как последовательность чисел по возрастанию
+                arr.sort((a, b) => a - b);
+                
+                // Выводим результат в заголовок окна (toString неявно вызовется при присвоении)
+                document.title = arr.toString();
+            } catch (e) {
+                // Если в адресе мусор, который не парсится как JSON
+                document.title = "Ошибка данных в URL";
+            }
+        }
+    </script>
+
+</body>
+</html>
