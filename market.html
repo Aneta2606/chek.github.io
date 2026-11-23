@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Касса студенческого мини-маркета</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; margin: 20px; background-color: #f4f4f9; color: #14243a; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 11px; box-shadow: 0 4px 18px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #10243c; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="number"], select { width: 100%; padding: 9px; box-sizing: border-box; border: 1px solid #a8b8cb; border-radius: 6px; font-size: 16px; }
+        button { background-color: #245a9b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #10243c; }
+        #result { background-color: #132238; color: #e8f0f6; padding: 15px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; margin-top: 20px; }
+        .btn-example { background-color: #e8f0f6; color: #10243c; border: 1px solid #c7d5e3; margin: 2px; width: auto; font-size: 14px; padding: 5px 10px; }
+        .btn-example:hover { background-color: #c7d5e3; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Касса студенческого мини-маркета</h1>
+    
+    <div class="form-group">
+        <label>Тетради (notebook) - 250 руб. (остаток: 8)</label>
+        <input type="number" id="notebook" value="0">
+    </div>
+    <div class="form-group">
+        <label>Маркеры (marker) - 90 руб. (остаток: 12)</label>
+        <input type="number" id="marker" value="0">
+    </div>
+    <div class="form-group">
+        <label>Папки (folder) - 120 руб. (остаток: 6)</label>
+        <input type="number" id="folder" value="0">
+    </div>
+    <div class="form-group">
+        <label>Промокод</label>
+        <select id="promo">
+            <option value="">Без скидки</option>
+            <option value="STUDENT">STUDENT</option>
+            <option value="BAD_PROMO">Другой (неверный)</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label><input type="checkbox" id="pickup"> Самовывоз</label>
+    </div>
+    
+    <button onclick="calculate()">Рассчитать заказ</button>
+
+    <h2>Результат работы скрипта</h2>
+    <pre id="result">Здесь появится JSON с результатом...</pre>
+
+    <h2>Открытые примеры</h2>
+    <div id="examples">
+        <button class="btn-example" onclick="loadExample(1)">Заказ со скидкой</button>
+        <button class="btn-example" onclick="loadExample(2)">Бесплатная доставка</button>
+        <button class="btn-example" onclick="loadExample(3)">Доставка после скидки</button>
+        <button class="btn-example" onclick="loadExample(4)">Самовывоз</button>
+        <button class="btn-example" onclick="loadExample(5)">Превышение остатка</button>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // ВАШ ЛОГИН В MOODLE (ОБЯЗАТЕЛЬНО ИЗМЕНИТЬ!)
+    // ==========================================
+    const LOGIN = "1161595"; 
+
+    // ==========================================
+    // ФУНКЦИЯ ЗАДАНИЯ
+    // ==========================================
+    function task(order) {
+        const catalog = {
+            notebook: { price: 250, stock: 8 },
+            marker:   { price: 90,  stock: 12 },
+            folder:   { price: 120, stock: 6 }
+        };
+
+        const items = order.items || {};
+        const promo = order.promo || "";
+        const pickup = order.pickup === true; 
+
+        let subtotal = 0;
+        let totalItemsCount = 0;
+
+        for (const code in items) {
+            if (!catalog[code]) {
+                return { ok: false, error: "unknown-item" };
+            }
+
+            const qty = items[code];
+            const itemInfo = catalog[code];
+
+            if (typeof qty !== "number" || !Number.isInteger(qty) || qty < 0) {
+                return { ok: false, error: "invalid-quantity" };
+            }
+
+            if (qty > itemInfo.stock) {
+                return { ok: false, error: "out-of-stock" };
+            }
+
+            if (qty > 0) {
+                subtotal += itemInfo.price * qty;
+                totalItemsCount += qty;
+            }
+        }
+
+        if (totalItemsCount === 0) {
+            return { ok: false, error: "empty-cart" };
+        }
+
+        let discount = 0;
+        if (promo !== "") {
+            if (promo === "STUDENT") {
+                discount = Math.floor(subtotal * 0.10);
+            } else {
+                return { ok: false, error: "bad-promo" };
+            }
+        }
+
+        let delivery = 0;
+        if (!pickup) {
+            const totalAfterDiscount = subtotal - discount;
+            if (totalAfterDiscount < 1000) {
+                delivery = 150;
+            }
+        }
+
+        const total = subtotal - discount + delivery;
+
+        return {
+            ok: true,
+            subtotal: subtotal,
+            discount: discount,
+            delivery: delivery,
+            total: total
+        };
+    }
+
+    // ==========================================
+    // ВСПОМОГАТЕЛЬНЫЙ КОД ДЛЯ ИНТЕРФЕЙСА
+    // ==========================================
+    window.task = task;
+
+    function calculate() {
+        const nbQty = parseInt(document.getElementById('notebook').value) || 0;
+        const mrQty = parseInt(document.getElementById('marker').value) || 0;
+        const flQty = parseInt(document.getElementById('folder').value) || 0;
+        const promo = document.getElementById('promo').value;
+        const pickup = document.getElementById('pickup').checked;
+
+        const order = {
+            items: { notebook: nbQty, marker: mrQty, folder: flQty },
+            promo: promo,
+            pickup: pickup
+        };
+
+        const result = task(order);
+        document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+    }
+
+    function loadExample(num) {
+        let order;
+        if (num === 1) order = { items: { notebook: 2, marker: 1 }, promo: "STUDENT", pickup: false };
+        else if (num === 2) order = { items: { notebook: 4 }, promo: "", pickup: false };
+        else if (num === 3) order = { items: { notebook: 4 }, promo: "STUDENT", pickup: false };
+        else if (num === 4) order = { items: { folder: 1 }, promo: "", pickup: true };
+        else if (num === 5) order = { items: { notebook: 9 }, promo: "", pickup: false };
+
+        document.getElementById('result').textContent = JSON.stringify(task(order), null, 2);
+        
+        if(order.items) {
+            document.getElementById('notebook').value = order.items.notebook || 0;
+            document.getElementById('marker').value = order.items.marker || 0;
+            document.getElementById('folder').value = order.items.folder || 0;
+        }
+        document.getElementById('promo').value = order.promo || "";
+        document.getElementById('pickup').checked = order.pickup || false;
+    }
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const order = { items: {}, promo: "", pickup: false };
+        let hasParams = false;
+
+        ['notebook', 'marker', 'folder'].forEach(item => {
+            if (urlParams.has(item)) {
+                order.items[item] = parseInt(urlParams.get(item)) || 0;
+                document.getElementById(item).value = order.items[item];
+                hasParams = true;
+            }
+        });
+
+        if (urlParams.has('promo')) {
+            order.promo = urlParams.get('promo');
+            document.getElementById('promo').value = order.promo;
+            hasParams = true;
+        }
+
+        if (urlParams.has('pickup')) {
+            order.pickup = urlParams.get('pickup') === 'true';
+            document.getElementById('pickup').checked = order.pickup;
+            hasParams = true;
+        }
+
+        if (hasParams) {
+            const result = task(order);
+            document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+        }
+    };
+</script>
+</body>
+</html>
